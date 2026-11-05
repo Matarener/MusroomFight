@@ -1,6 +1,8 @@
 import { $, $$ } from './dom.js';
 import { Sheet } from './Sheet.js';
 import { resetProgress } from '../save.js';
+import { STORY } from '../data/story.js';
+import { CHAPTER_NAMES } from '../data/content.js';
 
 const QUALITY = [
   ['auto', 'Авто', 'Само снижает разрешение, если кадров не хватает'],
@@ -54,8 +56,7 @@ export function createSettingsSheet(app) {
         '</section>' +
         (app.router.screen === 'battle' ? '' :
           '<section class="set-group"><h3>Сюжет</h3>' +
-            '<button class="sbtn" type="button" id="set-intro"><span>Смотреть вступление</span></button>' +
-            '<button class="sbtn" type="button" id="set-story"><span>Показывать сцены глав заново</span></button>' +
+            '<button class="sbtn" type="button" id="set-scenes"><span>Смотреть сцены<small>Вступление и сцены пройденных глав</small></span></button>' +
           '</section>') +
         '<button class="sbtn reset" type="button" id="set-reset"><span>Сбросить настройки</span></button>' +
         '<button class="sbtn reset danger" type="button" id="set-progress"><span>Начать игру заново</span></button>' +
@@ -102,19 +103,44 @@ export function createSettingsSheet(app) {
       wipe.querySelector('span').textContent = 'Начинаем заново…';
       resetProgress();
     });
-    const intro = $('#set-intro', panel);
-    if (intro) {
-      intro.addEventListener('click', () => {
+    const scenes = $('#set-scenes', panel);
+    if (scenes) scenes.addEventListener('click', () => { app.sfx('tap'); openScenes(); });
+  }
+
+  /** Список катсцен: вступление и сцены глав, до которых игрок уже дошёл. */
+  function sceneList() {
+    const { state } = app;
+    const list = [['intro', 'Вступление', 'Как всё началось', true]];
+    CHAPTER_NAMES.forEach((name, i) => {
+      const title = 'Глава ' + (i + 1) + ' · ' + name;
+      const before = 'ch' + (i + 1) + '_before';
+      const after = 'ch' + (i + 1) + '_after';
+      if (STORY[before]) list.push([before, title, 'Перед боем', i <= state.forestCleared || state.hasSeenStory(before)]);
+      if (STORY[after]) list.push([after, title, 'После победы', i < state.forestCleared || state.hasSeenStory(after)]);
+    });
+    return list;
+  }
+
+  /** Окно со списком сцен: любую открытую можно посмотреть ещё раз. */
+  function openScenes() {
+    const panel = sheet.open(
+      Sheet.head('Сцены', 'Нажмите, чтобы посмотреть ещё раз') +
+      '<div class="settings"><div class="sbtns">' +
+        sceneList().map(([id, title, sub, open]) =>
+          '<button class="sbtn" type="button" data-scene="' + id + '"' + (open ? '' : ' disabled') + '>' +
+            '<span>' + (open ? '' : '🔒 ') + title + '<small>' + (open ? sub : 'Откроется по ходу сюжета') + '</small></span></button>').join('') +
+      '</div>' +
+      '<button class="sbtn reset" type="button" id="scenes-back"><span>Назад к настройкам</span></button>' +
+      '</div>',
+    );
+    for (const b of $$('[data-scene]', panel)) {
+      b.addEventListener('click', () => {
         const back = app.router.screen;
         app.sfx('tap');
-        app.story.play('intro', () => app.router.go(back));
-      });
-      $('#set-story', panel).addEventListener('click', () => {
-        app.state.resetStory();
-        app.sfx('tap');
-        app.toast('Сцены глав покажутся снова');
+        app.story.play(b.dataset.scene, () => app.router.go(back));
       });
     }
+    $('#scenes-back', panel).addEventListener('click', () => { app.sfx('tap'); open(); });
   }
 
   for (const b of $$('[data-open-settings]')) b.addEventListener('click', open);
