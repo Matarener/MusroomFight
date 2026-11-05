@@ -3,7 +3,8 @@ import { GameState } from './game/state.js';
 import { makeMushroomTextures } from './game/art/mushrooms.js';
 import { makeFarmTextures } from './game/art/farmArt.js';
 import { makeForestTextures, forestBackground } from './game/art/forestArt.js';
-import { makeBattleTextures, battleBackground } from './game/art/battleArt.js';
+import { makeBattleTextures } from './game/art/battleArt.js';
+import { locationBackground, CHAPTER_LOCATIONS } from './game/art/locations.js';
 import { portraitUrl } from './game/art/portraits.js';
 import { SKIN_NAMES } from './game/data/skeleton.js';
 import { FarmScene } from './game/scenes/FarmScene.js';
@@ -106,7 +107,11 @@ async function boot() {
   const steps = [
     ['Рисуем портреты бойцов…', () => SKIN_NAMES.forEach((s) => portraitUrl(engine.textures, s))],
     ['Сажаем лес…', () => { makeForestTextures(engine.textures); forestBackground(engine.textures, engine.renderer); }],
-    ['Вытаптываем поле боя…', () => { makeBattleTextures(engine.textures); battleBackground(engine.textures, engine.renderer); }],
+    ['Вытаптываем поле боя…', () => {
+      makeBattleTextures(engine.textures);
+      // место ближайшей главы, чтобы первый бой открылся без задержки
+      locationBackground(engine.textures, engine.renderer, CHAPTER_LOCATIONS[Math.min(app.state.forestCleared, CHAPTER_LOCATIONS.length - 1)]);
+    }],
     ['Настраиваем звуки…', () => audio.preload(Object.keys(SOUNDS))],
   ];
   for (let i = 0; i < steps.length; i++) {

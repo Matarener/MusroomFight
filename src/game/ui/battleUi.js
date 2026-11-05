@@ -2,6 +2,7 @@ import { $, esc, icon } from './dom.js';
 import { Sheet } from './Sheet.js';
 import { SPECIES, NODES, CHAPTER_NAMES, nodeEnemies, nodeReward } from '../data/content.js';
 import { enemyLook } from '../data/skeleton.js';
+import { locationBackground, CHAPTER_LOCATIONS } from '../art/locations.js';
 import { portraitUrl } from '../art/portraits.js';
 
 /**
@@ -105,6 +106,8 @@ export function createBattleUi(app) {
       '<button class="sbtn gold go" type="button" id="b-go"' + (team.length ? '' : ' disabled') + '><span>В бой!</span></button>',
     );
     $('#b-go', panelEl).addEventListener('click', () => { app.sfx('tap'); app.router.go('battle', node); });
+    // фон места главы рисуется, пока игрок смотрит на окно, а не в момент начала боя
+    setTimeout(() => locationBackground(app.engine.textures, app.engine.renderer, CHAPTER_LOCATIONS[node]), 60);
   }
 
   function openResult(win, node, result) {

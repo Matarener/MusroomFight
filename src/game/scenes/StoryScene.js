@@ -4,11 +4,16 @@ import { MUSHROOM_SKELETON } from '../data/skeleton.js';
 import { ACTORS, STORY } from '../data/story.js';
 import { farmBackground } from '../art/farmArt.js';
 import { forestBackground } from '../art/forestArt.js';
-import { battleBackground } from '../art/battleArt.js';
+import { locationBackground, LOCATION_IDS } from '../art/locations.js';
 
 const GROUND_Y = 600;               // где стоят персонажи (над облачком с репликой)
 const MOOD_ALPHA = { dark: 0.85, night: 0.58 };
-const BACKGROUNDS = { farm: farmBackground, forest: forestBackground, battle: battleBackground };
+/** Фон кадра: ферма, карта леса или одно из мест Зоны (art/locations.js). */
+function background(textures, renderer, name) {
+  if (name === 'farm') return farmBackground(textures, renderer);
+  if (name === 'forest') return forestBackground(textures, renderer);
+  return locationBackground(textures, renderer, LOCATION_IDS.includes(name) ? name : 'opushka');
+}
 /** Анимации, после которых персонаж возвращается в покой. Остальные держатся (победа, лежит без сил). */
 const ONE_SHOT = new Set(['attack', 'strike', 'hurt']);
 
@@ -20,7 +25,7 @@ export class StoryScene extends Scene {
   create({ id }) {
     this.panels = STORY[id];
     this.bgName = this.panels[0].bg || 'farm';
-    this.bg = this.sprite(BACKGROUNDS[this.bgName](this.textures, this.engine.renderer), 0, 0).setStatic();
+    this.bg = this.sprite(background(this.textures, this.engine.renderer, this.bgName), 0, 0).setStatic();
 
     this.actors = new Map(); // id → { body, shadow }
     this.dawn = this.sprite('story_dawn', 0, 0).setDepth(9000).setAlpha(0);
@@ -42,7 +47,7 @@ export class StoryScene extends Scene {
 
   _setBackground(name) {
     this.bgName = name;
-    const key = BACKGROUNDS[name](this.textures, this.engine.renderer);
+    const key = background(this.textures, this.engine.renderer, name);
     if (key !== this.bg.key) { this.bg.setTexture(key); this.invalidateStatic(); }
   }
 

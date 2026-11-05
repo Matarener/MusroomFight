@@ -1,7 +1,7 @@
 import { Scene } from '../../engine/index.js';
 import { UnitView } from './battle/UnitView.js';
 import { nodeEnemies, NODES, SPECIES } from '../data/content.js';
-import { battleBackground } from '../art/battleArt.js';
+import { locationBackground, CHAPTER_LOCATIONS } from '../art/locations.js';
 import { rollDamage, poisonTick, healTarget, healAmount, pickTarget, turnOrder, RULES } from '../battle/rules.js';
 
 const SLOTS_PLAYER = [{ x: 98, y: 520 }, { x: 140, y: 615 }, { x: 80, y: 705 }];
@@ -35,7 +35,9 @@ export class BattleScene extends Scene {
     this.active = null;
     this.turn = -1;
 
-    this.bg = this.sprite(battleBackground(this.textures, this.engine.renderer), 0, 0).setStatic();
+    // у каждой главы своё место Зоны
+    this.location = CHAPTER_LOCATIONS[node];
+    this.bg = this.sprite(locationBackground(this.textures, this.engine.renderer, this.location), 0, 0).setStatic();
 
     // всё, что появляется в момент удара, создаётся заранее
     this.fx = this.particles(120).setDepth(4500);
@@ -65,7 +67,7 @@ export class BattleScene extends Scene {
 
   resize() {
     if (!this.bg) return;
-    const key = battleBackground(this.textures, this.engine.renderer);
+    const key = locationBackground(this.textures, this.engine.renderer, this.location);
     if (key !== this.bg.key) { this.bg.setTexture(key); this.invalidateStatic(); }
   }
 
