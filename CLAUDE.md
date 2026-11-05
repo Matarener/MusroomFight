@@ -24,8 +24,10 @@
 - `src/game/data/` — константы: `content.js` (бойцы, стихии, кристаллы, бои, цены), `skeleton.js` (скелет гриба и все анимации).
 - `src/game/state.js` — `GameState`: всё состояние игрока и все операции над ним. Сцены и интерфейс меняют состояние только через его методы. Снимок для сохранения — `toSave()` / `restore()`; новые поля состояния добавлять в оба (и поднимать `SAVE_VERSION` при несовместимой смене). Для сервера заменить тела методов на запросы к API.
 - `src/game/save.js` — сохранение прогресса: localStorage всегда, Telegram CloudStorage внутри Telegram; при запуске берётся более свежий снимок, запись с задержкой 1.5 с и сразу при сворачивании.
+- `src/game/data/story.js` — сюжет: персонажи (`ACTORS`) и катсцены (`STORY`: `intro`, `chN_before`, `chN_after`), только данные. Показывает `StoryScene` (фон, персонажи, освещение) + `ui/storyUi.js` (облачко с репликой, «Пропустить»); какие сцены видены — `state.seenStory`.
 - `src/game/art/` — рисование текстур кодом (один раз при запуске). `background.js` — фоны, которые дорисовываются по ширине экрана.
-- `src/game/scenes/` — `TitleScene`, `FarmScene` (+ `farm/BedView`), `ForestScene`, `BattleScene` (+ `battle/UnitView`).
+- `src/game/scenes/` — `TitleScene`, `FarmScene` (+ `farm/BedView`), `ForestScene`, `BattleScene` (+ `battle/UnitView`), `StoryScene`.
+- `src/game/art/storyArt.js` — Тоша, Дед Груздь, Генерал Сморчок и Светляки (скины `m_*`: враги в боях выглядят мутантами, `enemyLook` в `data/skeleton.js`).
 - `src/game/battle/rules.js` — правила боя без графики (чистые функции).
 - `src/game/audio/` — `sounds.js` (звуки), `music.js` (три трека: ферма, лес, бой).
 - `src/game/ui/` — HTML-интерфейс поверх холста: HUD, окна (`Sheet`), отряд, бой, настройки, счётчик кадров, титульный экран.

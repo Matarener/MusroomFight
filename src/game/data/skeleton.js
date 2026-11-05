@@ -441,8 +441,21 @@ MUSHROOM_SKELETON.animations.strike = {
   events: [[0.26, 'hit']],
 };
 
-/** Скин гриба: шляпка, ножка и руки. Текстуры рисуются в game/art/mushrooms.js. */
-export const SKIN_NAMES = ['borovik', 'podberez', 'ryzhik', 'mukhomor', 'poganka', 'panther', 'woodear', 'openok', 'veshenka', 'witch'];
+/** Обычные грибы, у которых есть вид мутанта-Светляка (скин 'm_' + имя). */
+export const MUTANT_BASES = ['borovik', 'podberez', 'ryzhik', 'mukhomor', 'poganka', 'panther', 'woodear', 'openok', 'veshenka'];
+
+/**
+ * Скин гриба: шляпка, ножка и руки. Текстуры обычных грибов рисуются в game/art/mushrooms.js,
+ * персонажей сюжета и Светляков — в game/art/storyArt.js.
+ */
+export const SKIN_NAMES = [
+  'borovik', 'podberez', 'ryzhik', 'mukhomor', 'poganka', 'panther', 'woodear', 'openok', 'veshenka', 'witch',
+  'tosha', 'gruzd', 'smorchok',
+  ...MUTANT_BASES.map((k) => 'm_' + k),
+];
 MUSHROOM_SKELETON.skins = Object.fromEntries(
   SKIN_NAMES.map((k) => [k, { cap: 'cap_' + k, stem: 'stem_' + k, arm: 'arm_' + k }]),
 );
+
+/** Как выглядит гриб на стороне врага: обычные грибы у Светляков — мутанты. */
+export const enemyLook = (skin) => (MUTANT_BASES.includes(skin) ? 'm_' + skin : skin);

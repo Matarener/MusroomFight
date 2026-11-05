@@ -10,6 +10,9 @@ import { FarmScene } from './game/scenes/FarmScene.js';
 import { ForestScene } from './game/scenes/ForestScene.js';
 import { BattleScene } from './game/scenes/BattleScene.js';
 import { TitleScene } from './game/scenes/TitleScene.js';
+import { StoryScene } from './game/scenes/StoryScene.js';
+import { makeStoryTextures } from './game/art/storyArt.js';
+import { createStory } from './game/ui/storyUi.js';
 import { makeTitleTextures } from './game/art/titleArt.js';
 import { createTitleScreen } from './game/ui/titleScreen.js';
 import { Sheet } from './game/ui/Sheet.js';
@@ -26,7 +29,7 @@ import { MUSIC } from './game/audio/music.js';
  * Точка входа: собирает движок, состояние, интерфейс и сцены.
  *
  * Общий контекст app передаётся сценам (scene.app) и модулям интерфейса:
- *   app.engine, app.perf, app.audio, app.settings, app.state, app.sheet, app.toast, app.ui, app.router
+ *   app.engine, app.perf, app.audio, app.settings, app.state, app.sheet, app.toast, app.ui, app.router, app.story
  *   app.sfx(name) — проиграть звук
  */
 async function boot() {
@@ -78,15 +81,18 @@ async function boot() {
   makeMushroomTextures(engine.textures);
   makeFarmTextures(engine.textures);
   makeTitleTextures(engine.textures);
+  makeStoryTextures(engine.textures); // Тоша и Светляки нужны уже в отряде и на первом экране сюжета
 
   await saveReady;
   app.ui = createUi(app);
   app.router = createRouter(app);
+  app.story = createStory(app);
   engine
     .register('title', TitleScene)
     .register('farm', FarmScene)
     .register('forest', ForestScene)
-    .register('battle', BattleScene);
+    .register('battle', BattleScene)
+    .register('story', StoryScene);
 
   engine.start();
   engine.show('title');
@@ -110,7 +116,8 @@ async function boot() {
   await frame2();
 
   title.ready(() => {
-    app.router.go('farm');
+    // при первом запуске сначала вступление, потом ферма
+    if (!app.story.maybe('intro', () => app.router.go('farm'))) app.router.go('farm');
     engine.stopScene('title');
   });
   // музыка рендерится в фоне: сначала трек фермы, потом остальные

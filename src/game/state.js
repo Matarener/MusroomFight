@@ -25,9 +25,11 @@ export class GameState extends Emitter {
     this.spores = 6;
     this.stars = 25;
     this.crystals = { earth: 4, poison: 2, wood: 3 };
-    this.squad = SQUAD_SKINS.map((skin, i) => ({ id: i + 1, skin, level: skin === 'borovik' ? 2 : 1, xp: (i * 7) % 20 }));
+    this.squad = SQUAD_SKINS.map((skin, i) => ({ id: i + 1, skin, level: skin === 'tosha' ? 2 : 1, xp: (i * 7) % 20 }));
     this.team = [1, 4, 7];
     this.forestCleared = 0;
+    /** Какие катсцены сюжета уже показаны (id из data/story.js). */
+    this.seenStory = new Set();
 
     const now = Date.now();
     this.beds = [
@@ -58,6 +60,7 @@ export class GameState extends Emitter {
       team: [...this.team],
       forestCleared: this.forestCleared,
       beds: this.beds.map((b) => ({ ...b })),
+      seenStory: [...this.seenStory],
     };
   }
 
@@ -92,6 +95,7 @@ export class GameState extends Emitter {
         || (b.status === 'growing' && CRYSTALS[b.kind] && num(b.plantedAt) !== null && num(b.duration) !== null));
       if (data.beds.every(ok)) this.beds = data.beds.map((b) => ({ ...b }));
     }
+    if (Array.isArray(data.seenStory)) this.seenStory = new Set(data.seenStory.filter((id) => typeof id === 'string'));
     this._changed('level', 'spores', 'stars', 'crystals', 'squad', 'team', 'forest');
     return true;
   }
@@ -207,6 +211,23 @@ export class GameState extends Emitter {
     f.level++;
     this._changed('crystals', 'squad');
     return true;
+  }
+
+  /* ---------- сюжет ---------- */
+  hasSeenStory(id) {
+    return this.seenStory.has(id);
+  }
+
+  markStorySeen(id) {
+    if (this.seenStory.has(id)) return;
+    this.seenStory.add(id);
+    this._changed('story');
+  }
+
+  /** Показать весь сюжет заново (кнопка в настройках). */
+  resetStory() {
+    this.seenStory.clear();
+    this._changed('story');
   }
 
   /* ---------- лес ---------- */

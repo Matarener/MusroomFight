@@ -276,6 +276,50 @@ body {
 .fps span { opacity: 0.75; }
 .fps span.spike { opacity: 1; color: #ffb3a0; }
 /* ---------- экраны поверх игры ---------- */
+.frame[data-screen="story"] .hud,
+.frame[data-screen="story"] .nav,
+.frame[data-screen="story"] .fps { display: none; }
+
+/* ---------- катсцены ---------- */
+.story-ui { position: absolute; inset: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.story-skip {
+  position: absolute; top: calc(var(--u) * 14); right: calc(var(--u) * 14);
+  appearance: none; cursor: pointer;
+  background: rgba(255, 244, 220, 0.92); border: calc(var(--u) * 2.4) solid var(--g-wood); border-radius: 99px;
+  font-family: var(--f-display); font-weight: 500; font-size: calc(var(--u) * 12); color: var(--g-wood);
+  padding: calc(var(--u) * 7) calc(var(--u) * 14);
+  box-shadow: 0 calc(var(--u) * 3) 0 rgba(0, 0, 0, 0.3);
+}
+.story-box {
+  position: absolute; bottom: calc(var(--u) * 26); left: 50%; transform: translateX(-50%);
+  width: min(calc(100% - var(--u) * 24), calc(var(--u) * 366));
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: calc(var(--u) * 10);
+  background: var(--g-cream); border: calc(var(--u) * 2.6) solid var(--g-wood); border-radius: calc(var(--u) * 20);
+  padding: calc(var(--u) * 12) calc(var(--u) * 14) calc(var(--u) * 16);
+  box-shadow: 0 calc(var(--u) * 5) 0 rgba(0, 0, 0, 0.35);
+  min-height: calc(var(--u) * 116);
+}
+/* хвостик облачка, указывающий вверх на персонажей */
+.story-box::before {
+  content: ""; position: absolute; top: calc(var(--u) * -14); left: calc(var(--u) * 40);
+  border: calc(var(--u) * 12) solid transparent; border-bottom-color: var(--g-wood); border-top: 0;
+}
+.story-box.caption { grid-template-columns: minmax(0, 1fr); text-align: center; align-items: center; }
+.story-box.caption::before { display: none; }
+.story-box.pop { animation: story-pop 0.22s ease-out; }
+@keyframes story-pop { from { transform: translateX(-50%) translateY(calc(var(--u) * 8)); opacity: 0.4; } }
+.story-pt { width: calc(var(--u) * 62); height: auto; margin-top: calc(var(--u) * -30); filter: drop-shadow(0 calc(var(--u) * 3) 0 rgba(0, 0, 0, 0.2)); }
+.story-txt b { display: block; font-family: var(--f-display); font-weight: 700; font-size: calc(var(--u) * 13); color: var(--g-red); margin-bottom: calc(var(--u) * 4); }
+.story-txt p { margin: 0; font-size: calc(var(--u) * 15); font-weight: 600; line-height: 1.35; color: var(--g-wood); min-height: 2.7em; }
+.story-box.caption .story-txt p { font-family: var(--f-display); font-weight: 700; font-size: calc(var(--u) * 15.5); }
+.story-next {
+  position: absolute; right: calc(var(--u) * 14); bottom: calc(var(--u) * 10);
+  border: calc(var(--u) * 6) solid transparent; border-top: calc(var(--u) * 8) solid var(--g-wood); border-bottom: 0;
+  animation: story-hint 0.9s ease-in-out infinite;
+}
+@keyframes story-hint { 50% { transform: translateY(calc(var(--u) * 3)); } }
+.story-skip:focus-visible { outline: calc(var(--u) * 2.4) solid var(--g-gold); outline-offset: calc(var(--u) * 2); }
+
 .frame[data-screen="battle"] .hud,
 .frame[data-screen="battle"] .nav { display: none; }
 

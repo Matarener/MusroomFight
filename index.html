@@ -136,6 +136,14 @@
         <div class="bp-btns"><button class="pill" id="bp-auto" type="button" aria-pressed="false">Авто</button><button class="pill" id="bp-speed" type="button" aria-pressed="false">×2</button></div>
       </div>
     </div>
+    <div class="story-ui" id="story-ui" hidden>
+      <button class="story-skip" id="story-skip" type="button">Пропустить</button>
+      <div class="story-box" id="story-box" role="status" aria-live="polite">
+        <img class="story-pt" id="story-pt" alt="" width="120" height="138">
+        <div class="story-txt"><b id="story-name"></b><p id="story-text"></p></div>
+        <span class="story-next" aria-hidden="true"></span>
+      </div>
+    </div>
     <button class="fps" id="fps" type="button" title="Нажмите, чтобы включить или выключить ограничение 60 кадров">
       <span class="fps-row"><b class="good">--</b>FPS<span id="fps-ms"></span></span>
       <span class="fps-hz" id="fps-hz">измеряю экран…</span>

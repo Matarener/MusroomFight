@@ -1,6 +1,7 @@
 import { $, esc, icon } from './dom.js';
 import { Sheet } from './Sheet.js';
-import { SPECIES, NODES, nodeEnemies, nodeReward } from '../data/content.js';
+import { SPECIES, NODES, CHAPTER_NAMES, nodeEnemies, nodeReward } from '../data/content.js';
+import { enemyLook } from '../data/skeleton.js';
 import { portraitUrl } from '../art/portraits.js';
 
 /**
@@ -37,7 +38,7 @@ class BattlePanel {
 
   attach(scene) {
     this.scene = scene;
-    this.el.title.textContent = NODES[scene.node].boss ? 'Босс опушки' : 'Бой ' + (scene.node + 1) + ' · Опушка';
+    this.el.title.textContent = 'Глава ' + (scene.node + 1) + ' · ' + CHAPTER_NAMES[scene.node];
     this._sync();
     this.turn(null);
   }
@@ -60,7 +61,7 @@ class BattlePanel {
       return;
     }
     portrait.hidden = false;
-    const src = portraitUrl(this.app.engine.textures, unit.skin);
+    const src = portraitUrl(this.app.engine.textures, unit.look);
     if (portrait.getAttribute('src') !== src) portrait.src = src;
     name.textContent = unit.label + ' · ур. ' + unit.level;
     hint.textContent = unit.side === 'P' ? (this.auto ? 'Ходит сам' : 'Нажмите на противника') : 'Ход противника';
@@ -78,9 +79,9 @@ export function createBattleUi(app) {
   const panel = new BattlePanel(app);
   const portrait = (skin) => portraitUrl(app.engine.textures, skin);
 
-  const mini = (skin, level) => {
+  const mini = (skin, level, look = skin) => {
     const sp = SPECIES[skin];
-    return '<span class="mini"><img src="' + portrait(skin) + '" alt="" width="120" height="138">' +
+    return '<span class="mini"><img src="' + portrait(look) + '" alt="" width="120" height="138">' +
       '<b>' + esc(sp.label) + '</b><span class="mini-meta"><span class="tag ' + sp.el + '">' + sp.element + '</span> ур. ' + level + '</span></span>';
   };
 
@@ -92,9 +93,9 @@ export function createBattleUi(app) {
     const spores = replay ? Math.ceil(reward.spores / 2) : reward.spores;
 
     const panelEl = sheet.open(
-      Sheet.head(NODES[node].boss ? 'Босс опушки' : 'Бой ' + (node + 1), replay ? 'Уже пройден: спор дадут вдвое меньше' : 'Опушка, новый бой') +
+      Sheet.head('Глава ' + (node + 1) + ' · ' + CHAPTER_NAMES[node], replay ? 'Уже пройдена: спор дадут вдвое меньше' : NODES[node].boss ? 'Логово Ведьмы Светлячихи' : 'Светляки преграждают путь') +
       '<div class="vs-rows">' +
-        '<div class="vs-side"><span class="vs-label">Противники</span><div class="minis">' + enemies.map((e) => mini(e.skin, e.level)).join('') + '</div></div>' +
+        '<div class="vs-side"><span class="vs-label">Противники</span><div class="minis">' + enemies.map((e) => mini(e.skin, e.level, enemyLook(e.skin))).join('') + '</div></div>' +
         '<div class="vs-side"><span class="vs-label">Ваш отряд</span><div class="minis">' +
           (team.length ? team.map((f) => mini(f.skin, f.level)).join('') : '<span class="empty-note">Отряд пуст. Возьмите бойцов на вкладке «Отряд»</span>') +
         '</div></div>' +
@@ -114,13 +115,17 @@ export function createBattleUi(app) {
         '<div class="result win"><h2 class="sheet-title">Победа!</h2>' +
         '<div class="reward big"><b>+' + r.spores + icon('i-spore') + '</b><b>+' + r.crystals + icon('g-' + r.crystalEl) + '</b><b>+' + r.xp + ' опыта</b></div>' +
         (ups ? '<ul class="ups">' + ups + '</ul>' : '') +
-        (result.first && NODES[node].boss ? '<p class="note">Опушка пройдена! Новые зоны леса появятся в следующих версиях.</p>' : '') +
+        (result.first && NODES[node].boss ? '<p class="note">Зона свободна! Бои можно проходить заново.</p>' : '') +
         '<button class="sbtn gold go" type="button" id="b-next"><span>Дальше</span></button></div>',
         { modal: true },
       );
       app.sfx('victory');
       if (result.levelUps.length) setTimeout(() => app.sfx('levelup'), 1300);
-      $('#b-next', el).addEventListener('click', () => app.router.go('forest'));
+      $('#b-next', el).addEventListener('click', () => {
+        // после первой победы в главе — сцена сюжета
+        const toForest = () => app.router.go('forest');
+        if (!(result.first && app.story.maybe('ch' + (node + 1) + '_after', toForest))) toForest();
+      });
     } else {
       const el = sheet.open(
         '<div class="result"><h2 class="sheet-title">Отряд отступил</h2>' +

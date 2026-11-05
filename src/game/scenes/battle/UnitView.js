@@ -1,5 +1,5 @@
 import { SkeletonSprite } from '../../../skeleton/index.js';
-import { MUSHROOM_SKELETON } from '../../data/skeleton.js';
+import { MUSHROOM_SKELETON, enemyLook } from '../../data/skeleton.js';
 import { SPECIES, fighterStats } from '../../data/content.js';
 
 const BASE_SCALE = 0.56;
@@ -25,6 +25,8 @@ export class UnitView {
     this.scene = scene;
     this.side = side;
     this.skin = who.skin;
+    /** Скин скелета: у врагов обычные грибы выглядят Светляками-мутантами. */
+    this.look = side === 'E' ? enemyLook(who.skin) : who.skin;
     this.level = who.level;
     this.fighter = fighter;
     this.el = sp.el;
@@ -41,7 +43,7 @@ export class UnitView {
     this.shadow = scene.sprite('shadow', pos.x, pos.y + 2).setScale(this.size * 1.2).setDepth(pos.y - 3);
     this.targetRing = scene.sprite('ring_t', pos.x, pos.y + 2).setScale(ringScale).setDepth(pos.y - 2).setVisible(false);
 
-    this.body = scene.add(new SkeletonSprite(scene.textures, MUSHROOM_SKELETON, who.skin, pos.x, pos.y));
+    this.body = scene.add(new SkeletonSprite(scene.textures, MUSHROOM_SKELETON, this.look, pos.x, pos.y));
     this.body.setScale(this.size * this.dir, this.size).setDepth(pos.y);
     this.body.play('idle', { mix: 0 });
     this.body.time = Math.random() * 1.5;

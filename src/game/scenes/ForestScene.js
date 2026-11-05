@@ -75,6 +75,9 @@ export class ForestScene extends Scene {
       ui.toast('Сначала пройдите бой ' + (state.forestCleared + 1));
       return;
     }
-    ui.battle.openPrep(n.i);
+    // перед первым боем главы — сцена сюжета, потом окно боя
+    const open = () => ui.battle.openPrep(n.i);
+    if (n.i === state.forestCleared && this.app.story.maybe('ch' + (n.i + 1) + '_before', () => { this.app.router.go('forest'); open(); })) return;
+    open();
   }
 }

@@ -23,7 +23,7 @@ export function createUi(app) {
 
     forestTitle() {
       const c = app.state.forestCleared, total = NODES.length;
-      $('#forest-title').innerHTML = '<b>Опушка</b><span>' + (c >= total ? 'пройдена' : 'бои ' + c + ' / ' + total) + '</span>';
+      $('#forest-title').innerHTML = '<b>Зона</b><span>' + (c >= total ? 'свободна' : 'главы ' + c + ' / ' + total) + '</span>';
     },
   };
   return ui;

@@ -51,6 +51,11 @@ export function createSettingsSheet(app) {
           slider('music', 'Музыка') +
           slider('sounds', 'Звуки') +
         '</section>' +
+        (app.router.screen === 'battle' ? '' :
+          '<section class="set-group"><h3>Сюжет</h3>' +
+            '<button class="sbtn" type="button" id="set-intro"><span>Смотреть вступление</span></button>' +
+            '<button class="sbtn" type="button" id="set-story"><span>Показывать сцены глав заново</span></button>' +
+          '</section>') +
         '<button class="sbtn reset" type="button" id="set-reset"><span>Сбросить настройки</span></button>' +
       '</div>',
     );
@@ -80,6 +85,19 @@ export function createSettingsSheet(app) {
       if (r.dataset.key === 'sounds') r.addEventListener('change', () => app.sfx('collect'));
     }
     $('#set-reset', panel).addEventListener('click', () => { settings.reset(); open(); });
+    const intro = $('#set-intro', panel);
+    if (intro) {
+      intro.addEventListener('click', () => {
+        const back = app.router.screen;
+        app.sfx('tap');
+        app.story.play('intro', () => app.router.go(back));
+      });
+      $('#set-story', panel).addEventListener('click', () => {
+        app.state.resetStory();
+        app.sfx('tap');
+        app.toast('Сцены глав покажутся снова');
+      });
+    }
   }
 
   for (const b of $$('[data-open-settings]')) b.addEventListener('click', open);

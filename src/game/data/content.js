@@ -25,14 +25,16 @@ export const SPECIES = {
   woodear:  { label: 'Древесное ухо',     el: 'wood',   hp: 54,  atk: 9,  color: 0xa0634a },
   openok:   { label: 'Опёнок',            el: 'wood',   hp: 46,  atk: 11, color: 0xd9a35a },
   veshenka: { label: 'Вешенка',           el: 'wood',   hp: 62,  atk: 8,  color: 0xb8b8b0 },
-  witch:    { label: 'Ведьмин гриб',      el: 'poison', hp: 118, atk: 11, color: 0x9bf07a, trait: 'Хозяйка опушки. Отравляет.', boss: true },
+  witch:    { label: 'Ведьма Светлячиха', el: 'poison', hp: 118, atk: 11, color: 0x9bf07a, trait: 'Хозяйка Светляков. Отравляет.', boss: true },
+  tosha:    { label: 'Тоша',              el: 'earth',  hp: 64,  atk: 10, color: 0xd9b56b, trait: 'Юный боровичок, лидер отряда. Крепкий: получает на 20% меньше урона' },
+  smorchok: { label: 'Генерал Сморчок',   el: 'earth',  hp: 88,  atk: 12, color: 0x9bf07a, trait: 'Командир Светляков. Крепкий: получает на 20% меньше урона', boss: true },
 };
 for (const sp of Object.values(SPECIES)) {
   sp.element = ELEMENT_NAME[sp.el];
   sp.trait = sp.trait || ELEMENT_TRAIT[sp.el];
 }
-/** Постоянный отряд игрока: девять грибов, по три на стихию. */
-export const SQUAD_SKINS = ['borovik', 'podberez', 'ryzhik', 'mukhomor', 'poganka', 'panther', 'woodear', 'openok', 'veshenka'];
+/** Постоянный отряд игрока: девять грибов, по три на стихию. Первый — Тоша, главный герой. */
+export const SQUAD_SKINS = ['tosha', 'podberez', 'ryzhik', 'mukhomor', 'poganka', 'panther', 'woodear', 'openok', 'veshenka'];
 export const TEAM_SIZE = 3;
 
 export const xpToNextLevel = (level) => 30 * level;
@@ -58,7 +60,11 @@ export const PRICES = {
   instantGrow: 5,  // звёзд за мгновенный рост
 };
 
-/* ---------- лес ---------- */
+/* ---------- лес: девять глав пути через Зону ---------- */
+export const CHAPTER_NAMES = [
+  'Опушка', 'Старый забор', 'Рыжий лес', 'Болото', 'Лагерь Сморчка',
+  'Заброшенная деревня', 'Мёртвая дорога', 'У подножия Вышки', 'Вышка',
+];
 export const NODES = Array.from({ length: 9 }, (_, i) => ({
   i,
   boss: i === 8,
@@ -71,7 +77,7 @@ const ENEMY_PATTERNS = [
   ['poganka', 'veshenka'],
   ['ryzhik', 'panther', 'woodear'],
   ['veshenka', 'openok', 'borovik'],
-  ['mukhomor', 'podberez', 'poganka'],
+  ['mukhomor', 'smorchok', 'poganka'], // лагерь Генерала Сморчка
   ['ryzhik', 'woodear', 'panther'],
   ['panther', 'mukhomor', 'openok'],
   ['borovik', 'ryzhik', 'veshenka'],

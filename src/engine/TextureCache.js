@@ -79,6 +79,39 @@ export class TextureCache {
     return tex;
   }
 
+  /**
+   * Новая текстура на основе готовой: копия картинки, по желанию окрашенная,
+   * плюс дорисовка в тех же координатах, что и у исходной (относительно её origin).
+   * @param {string} key     ключ новой текстуры
+   * @param {string} srcKey  исходная текстура
+   * @param {{ tint?: number, strength?: number }} [opts]
+   * @param {(p: Painter) => void} [draw]
+   */
+  derive(key, srcKey, { tint = null, strength = 0.3 } = {}, draw = null) {
+    if (this._map.has(key)) return this._map.get(key);
+    const src = this.get(srcKey);
+    const canvas = document.createElement('canvas');
+    canvas.width = src.canvas.width;
+    canvas.height = src.canvas.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(src.canvas, 0, 0);
+    if (tint !== null) {
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle = rgba(tint, strength);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    if (draw) {
+      const S = canvas.width / src.w;
+      ctx.setTransform(S, 0, 0, S, 0, 0);
+      ctx.translate(src.ox, src.oy);
+      draw(new Painter(ctx));
+    }
+    const tex = { canvas, w: src.w, h: src.h, ox: src.ox, oy: src.oy };
+    this._map.set(key, tex);
+    return tex;
+  }
+
   /** Круглая частица нужного цвета. */
   dot(color) {
     return this.bake('dot:' + color, 12, 12, 6, 6, (p) => {
