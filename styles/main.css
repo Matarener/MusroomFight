@@ -195,6 +195,8 @@ body {
   border-radius: calc(var(--u) * 27.3) calc(var(--u) * 27.3) 0 0;
   padding: calc(var(--u) * 19.5) calc(var(--u) * 19.5) calc(var(--u) * 27.3);
   display: flex; flex-direction: column; gap: calc(var(--u) * 15.6);
+  /* окно не выше экрана: заголовок с крестиком всегда виден, длинное содержимое прокручивается */
+  max-height: 100%; min-height: 0;
   animation: rise 0.25s ease;
 }
 @keyframes rise { from { transform: translateY(30%); opacity: 0.4; } }
@@ -516,7 +518,7 @@ body {
 .bt-right { display: flex; align-items: center; gap: calc(var(--u) * 8); }
 .bt-right .gear { box-shadow: 0 calc(var(--u) * 3) 0 rgba(0, 0, 0, 0.3); }
 
-.settings { display: flex; flex-direction: column; gap: calc(var(--u) * 14); max-height: calc(var(--u) * 560); overflow-y: auto; overscroll-behavior: contain; margin-right: calc(var(--u) * -6); padding-right: calc(var(--u) * 6); }
+.settings { display: flex; flex-direction: column; gap: calc(var(--u) * 14); flex: 1 1 auto; min-height: 0; max-height: calc(var(--u) * 560); overflow-y: auto; overscroll-behavior: contain; margin-right: calc(var(--u) * -6); padding-right: calc(var(--u) * 6); }
 .set-group { display: flex; flex-direction: column; gap: calc(var(--u) * 10); }
 .set-group h3 {
   margin: 0; font-family: var(--f-display); font-weight: 700; font-size: calc(var(--u) * 11);

@@ -66,11 +66,13 @@ async function boot() {
       if (app.router) app.router.syncPause();
     },
   });
+  // размер элементов интерфейса: одна игровая единица в CSS-пикселях.
+  // Подписка до applySettings: он уже задаёт размер холста, и первое событие нельзя пропустить
+  const setUnit = (r) => { if (r.width) frame.style.setProperty('--u', r.zoom / r.pixelRatio + 'px'); };
+  engine.events.on('resize', setUnit);
   applySettings(app);
   app.settings.on('change', (key) => applySettings(app, key));
-
-  // размер элементов интерфейса: одна игровая единица в CSS-пикселях
-  engine.events.on('resize', (r) => frame.style.setProperty('--u', r.zoom / r.pixelRatio + 'px'));
+  setUnit(engine.renderer);
 
   // подписи на текстурах рисуются шрифтом Unbounded: ждём его, но не дольше 1.5 с
   if (document.fonts?.load) {
