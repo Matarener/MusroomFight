@@ -72,6 +72,7 @@ export class Engine {
     } else {
       this.scene = scene;
     }
+    this.renderer.scrollY = 0; // прокрутку сцена задаёт сама (карта леса)
     scene.invalidateStatic();
     scene.resize();
     scene.wake(data);
@@ -187,15 +188,36 @@ export class Engine {
       const rect = canvas.getBoundingClientRect();
       return this.renderer.screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
     };
+    // перетаскивание (прокрутка карты): только в сценах с handleDrag; после него касание не считается нажатием
+    let drag = null;
+    const DRAG_START = 8; // CSS-пикселей до того, как касание становится перетаскиванием
+    const toUnits = (css) => (css * this.renderer.pixelRatio) / this.renderer.zoom;
     canvas.addEventListener('pointerdown', (e) => {
       if (!this.scene || this.paused) return;
+      drag = { id: e.pointerId, y: e.clientY, startY: e.clientY, moving: false };
       const p = toWorld(e);
       this.scene.handlePress(p.x, p.y);
     });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drag || drag.id !== e.pointerId || !this.scene || this.paused || !this.scene.handleDrag) return;
+      if (!drag.moving && Math.abs(e.clientY - drag.startY) < DRAG_START) return;
+      if (!drag.moving) { drag.moving = true; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* не поддерживается */ } }
+      this.scene.handleDrag(-toUnits(e.clientY - drag.y));
+      drag.y = e.clientY;
+    });
     canvas.addEventListener('pointerup', (e) => {
-      if (!this.scene || this.paused) return;
+      const moved = drag && drag.moving;
+      drag = null;
+      if (moved && this.scene && this.scene.handleRelease) this.scene.handleRelease();
+      if (!this.scene || this.paused || moved) return;
       const p = toWorld(e);
       this.scene.handleTap(p.x, p.y);
     });
+    canvas.addEventListener('pointercancel', () => { drag = null; });
+    canvas.addEventListener('wheel', (e) => {
+      if (!this.scene || this.paused || !this.scene.handleDrag) return;
+      e.preventDefault();
+      this.scene.handleDrag(toUnits(e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY));
+    }, { passive: false });
   }
 }

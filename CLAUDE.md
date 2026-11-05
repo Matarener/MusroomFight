@@ -26,7 +26,7 @@
 - `src/game/save.js` — сохранение прогресса: localStorage всегда, Telegram CloudStorage внутри Telegram; при запуске берётся более свежий снимок, запись с задержкой 1.5 с и сразу при сворачивании.
 - `src/game/data/story.js` — сюжет: персонажи (`ACTORS`) и катсцены (`STORY`: `intro`, `chN_before`, `chN_after`), только данные. Показывает `StoryScene` (фон, персонажи, освещение) + `ui/storyUi.js` (облачко с репликой, «Пропустить»); какие сцены видены — `state.seenStory`.
 - `src/game/art/` — рисование текстур кодом (один раз при запуске). `background.js` — фоны, которые дорисовываются по ширине экрана.
-- `src/game/scenes/` — `TitleScene`, `FarmScene` (+ `farm/BedView`), `ForestScene`, `BattleScene` (+ `battle/UnitView`), `StoryScene`.
+- `src/game/scenes/` — `TitleScene`, `FarmScene` (+ `farm/BedView`), `ForestScene` (карта выше экрана, `FOREST_MAP`; прокрутка через `renderer.scrollY` и `scene.handleDrag`, движок сбрасывает её при смене сцены), `BattleScene` (+ `battle/UnitView`), `StoryScene`.
 - `src/game/art/locations.js` — фоны мест Зоны: у каждой из 9 глав своё место (`CHAPTER_LOCATIONS`), на нём идут и бой, и катсцены главы; `towerDawn` — Вышка на рассвете для финала. В памяти держится только последний фон места.
 - `src/game/art/storyArt.js` — Тоша, Дед Груздь, Генерал Сморчок и Светляки (скины `m_*`: враги в боях выглядят мутантами, `enemyLook` в `data/skeleton.js`).
 - `src/game/battle/rules.js` — правила боя без графики (чистые функции).

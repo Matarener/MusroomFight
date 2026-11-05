@@ -23,23 +23,25 @@ const current = new Map(); // имя фона → ключ текущей тек
  * @param {(g, label, ext: {left, right}) => void} drawCore   середина фона и сплошные полосы на всю ширину
  * @param {(g, sides: number[][], r: Function, left: number, right: number) => void} drawSides
  *        края: sides — отрезки [от, до] по x за пределами середины, r — свой генератор случайных чисел
+ * @param {{ top?: number, bottom?: number }} [extent]  высота фона, если он выше экрана (карта леса)
  * @returns {string} ключ текстуры
  */
-export function bakeBackground(textures, renderer, name, drawCore, drawSides) {
-  const view = renderer.width ? renderer.visibleWorld() : CORE;
+export function bakeBackground(textures, renderer, name, drawCore, drawSides, extent = {}) {
+  const top = extent.top ?? CORE.top, bottom = extent.bottom ?? CORE.bottom;
+  const view = renderer.width ? renderer.visibleWorld() : CORE; // по ширине прокрутка не влияет
   const left = view.left < CORE.left ? Math.floor((view.left - 20) / STEP) * STEP : CORE.left;
   const right = view.right > CORE.right ? Math.ceil((view.right + 20) / STEP) * STEP : CORE.right;
   const key = name + ':' + left + ':' + right;
   if (textures.has(key)) return key;
 
   const width = right - left;
-  const height = CORE.bottom - CORE.top;
+  const height = bottom - top;
   const scale = Math.min(MAX_SCALE, PIXEL_BUDGET / width);
   const sides = [];
   if (left < CORE.left) sides.push([left, CORE.left]);
   if (right > CORE.right) sides.push([CORE.right, right]);
 
-  textures.bake(key, width, height, -left, -CORE.top, (g, label) => {
+  textures.bake(key, width, height, -left, -top, (g, label) => {
     // середина рисует сплошные полосы (небо, лес на горизонте, землю) сразу на всю ширину,
     // края добавляют только отдельные предметы поверх: так на стыке не бывает швов
     drawCore(g, label, { left, right });

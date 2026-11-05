@@ -1,25 +1,28 @@
 import { rng } from '../util/rng.js';
-import { NODES } from '../data/content.js';
+import { NODES, FOREST_MAP } from '../data/content.js';
 import { pine, glowShroom } from './scenery.js';
 import { bakeBackground, countFor } from './background.js';
 
 /**
  * Графика леса: тёмная опушка с тропой через все бои и значки боёв.
+ * Карта выше экрана (FOREST_MAP), фон рисуется на всю её высоту.
  */
+const TOP = FOREST_MAP.top, H = FOREST_MAP.bottom - FOREST_MAP.top;
+const K = H / 1200; // во сколько раз больше предметов, чем на фоне высотой в экран
 function drawForestBg(g, label, { left, right }) {
   const r = rng(21);
   g.verticalGradient(0x24392b, 0x3d6040);
-  g.fillRect(left, -160, right - left, 1200);
-  for (let i = 0; i < 26; i++) {
-    g.fillStyle(0xbfe0cf, 0.035); g.fillEllipse(-120 + r() * 630, -100 + r() * 1100, 220 + r() * 200, 50 + r() * 40);
+  g.fillRect(left, TOP, right - left, H);
+  for (let i = 0; i < 26 * K; i++) {
+    g.fillStyle(0xbfe0cf, 0.035); g.fillEllipse(-120 + r() * 630, TOP + 60 + r() * (H - 100), 220 + r() * 200, 50 + r() * 40);
   }
-  for (let i = 0; i < 260; i++) {
+  for (let i = 0; i < 260 * K; i++) {
     g.fillStyle(r() < 0.5 ? 0x4a7046 : 0x2f4c34, 0.5);
-    g.fillEllipse(-120 + r() * 630, -150 + r() * 1180, 5 + r() * 9, 2 + r() * 4);
+    g.fillEllipse(-120 + r() * 630, TOP + 10 + r() * (H - 20), 5 + r() * 9, 2 + r() * 4);
   }
 
   // тропа через все узлы
-  const pts = [{ x: 205, y: 1040 }, { x: 200, y: 800 }].concat(NODES.map((n) => ({ x: n.x, y: n.y }))).concat([{ x: 195, y: 60 }, { x: 190, y: -160 }]);
+  const pts = [{ x: 205, y: FOREST_MAP.bottom + 200 }, { x: 205, y: FOREST_MAP.bottom + 30 }, { x: 208, y: (FOREST_MAP.bottom + NODES[0].y) / 2 }].concat(NODES.map((n) => ({ x: n.x, y: n.y }))).concat([{ x: 195, y: NODES[8].y - 140 }, { x: 190, y: TOP - 100 }]);
   const cr = (a, b, c, d, t) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t);
   const path = [];
   for (let k = 1; k < pts.length - 2; k++) {
@@ -36,8 +39,8 @@ function drawForestBg(g, label, { left, right }) {
 
   // ели и светящиеся грибы по краям тропы
   const trees = [];
-  for (let i = 0; i < 70; i++) {
-    const y = -150 + r() * 1180;
+  for (let i = 0; i < 70 * K; i++) {
+    const y = TOP + 10 + r() * (H - 20);
     const side = r() < 0.5 ? -1 : 1;
     const near = path.reduce((m, p) => (Math.abs(p.y - y) < Math.abs(m.y - y) ? p : m), path[0]);
     const x = near.x + side * (70 + r() * 230);
@@ -49,7 +52,7 @@ function drawForestBg(g, label, { left, right }) {
     pine(g, t.x, t.y, t.s, shade ? 0x2f5a3a : 0x3a6a42, 0x1b3324);
   });
   const glow = [0x7de0d0, 0xc8ff9a, 0xffe27a];
-  for (let i = 0; i < 34; i++) {
+  for (let i = 0; i < 34 * K; i++) {
     const p = path[Math.floor(r() * path.length)];
     const side = r() < 0.5 ? -1 : 1;
     glowShroom(g, p.x + side * (30 + r() * 40), p.y + (r() - 0.5) * 30, 0.7 + r() * 0.6, glow[i % 3]);
@@ -62,14 +65,14 @@ function drawForestSides(g, sides, r) {
   for (const side of sides) {
     const [a, b] = side;
     const x = () => a + r() * (b - a);
-    for (let i = countFor(side, 10); i > 0; i--) {
-      g.fillStyle(0xbfe0cf, 0.035); g.fillEllipse(x(), -100 + r() * 1100, 220 + r() * 200, 50 + r() * 40);
+    for (let i = countFor(side, 10 * K); i > 0; i--) {
+      g.fillStyle(0xbfe0cf, 0.035); g.fillEllipse(x(), TOP + 60 + r() * (H - 100), 220 + r() * 200, 50 + r() * 40);
     }
-    for (let i = countFor(side, 260); i > 0; i--) {
+    for (let i = countFor(side, 260 * K); i > 0; i--) {
       g.fillStyle(r() < 0.5 ? 0x4a7046 : 0x2f4c34, 0.5);
-      g.fillEllipse(x(), -150 + r() * 1180, 5 + r() * 9, 2 + r() * 4);
+      g.fillEllipse(x(), TOP + 10 + r() * (H - 20), 5 + r() * 9, 2 + r() * 4);
     }
-    for (let i = countFor(side, 110); i > 0; i--) trees.push({ x: x(), y: -150 + r() * 1180, s: 0.7 + r() * 0.8 });
+    for (let i = countFor(side, 110 * K); i > 0; i--) trees.push({ x: x(), y: TOP + 10 + r() * (H - 20), s: 0.7 + r() * 0.8 });
   }
   trees.sort((p, q) => p.y - q.y).forEach((t) => {
     g.fillStyle(0x000000, 0.18); g.fillEllipse(t.x, t.y + 8 * t.s, 60 * t.s, 12 * t.s);
@@ -77,15 +80,15 @@ function drawForestSides(g, sides, r) {
   });
   const glow = [0x7de0d0, 0xc8ff9a, 0xffe27a];
   for (const side of sides) {
-    for (let i = countFor(side, 12); i > 0; i--) {
-      glowShroom(g, side[0] + r() * (side[1] - side[0]), -100 + r() * 1100, 0.7 + r() * 0.6, glow[i % 3]);
+    for (let i = countFor(side, 12 * K); i > 0; i--) {
+      glowShroom(g, side[0] + r() * (side[1] - side[0]), TOP + 60 + r() * (H - 100), 0.7 + r() * 0.6, glow[i % 3]);
     }
   }
 }
 
 /** Фон леса под текущую ширину экрана. */
 export function forestBackground(textures, renderer) {
-  return bakeBackground(textures, renderer, 'forest', drawForestBg, drawForestSides);
+  return bakeBackground(textures, renderer, 'forest', drawForestBg, drawForestSides, FOREST_MAP);
 }
 
 /** @param {import('../../engine/TextureCache.js').TextureCache} textures */

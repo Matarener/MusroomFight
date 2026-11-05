@@ -65,12 +65,16 @@ export const CHAPTER_NAMES = [
   'Опушка', 'Старый забор', 'Рыжий лес', 'Болото', 'Лагерь Сморчка',
   'Заброшенная деревня', 'Мёртвая дорога', 'У подножия Вышки', 'Вышка',
 ];
+/** Главы на карте леса: снизу вверх, карта выше экрана и прокручивается. */
+const NODE_STEP = 112; // по вертикали между главами, чтобы кружки не налезали друг на друга
 export const NODES = Array.from({ length: 9 }, (_, i) => ({
   i,
   boss: i === 8,
   x: Math.round(195 + Math.sin(i * 1.25 + 0.3) * 100),
-  y: Math.round(700 - i * 62.5),
+  y: Math.round(720 - i * NODE_STEP),
 }));
+/** Высота карты леса (в игровых единицах, как у экрана 390×844). */
+export const FOREST_MAP = { top: NODES[8].y - 300, bottom: NODES[0].y + 240 };
 
 const ENEMY_PATTERNS = [
   ['openok', 'podberez'],

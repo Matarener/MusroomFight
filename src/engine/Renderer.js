@@ -27,6 +27,7 @@ export class Renderer {
     this.offsetY = 0;
     this.shakeX = 0;
     this.shakeY = 0;
+    this.scrollY = 0; // прокрутка камеры по вертикали, в игровых единицах (карта леса)
   }
 
   _makeCanvas(container, transparent) {
@@ -34,7 +35,7 @@ export class Renderer {
     c.style.position = 'absolute';
     c.style.inset = '0';
     c.style.display = 'block';
-    if (transparent) c.style.touchAction = 'manipulation';
+    if (transparent) c.style.touchAction = 'none'; // жесты обрабатывает игра (прокрутка карты), не браузер
     container.appendChild(c);
     return c;
   }
@@ -66,8 +67,8 @@ export class Renderer {
     return {
       left: -this.offsetX / this.zoom,
       right: (this.width - this.offsetX) / this.zoom,
-      top: -this.offsetY / this.zoom,
-      bottom: (this.height - this.offsetY) / this.zoom,
+      top: -this.offsetY / this.zoom + this.scrollY,
+      bottom: (this.height - this.offsetY) / this.zoom + this.scrollY,
     };
   }
 
@@ -75,7 +76,7 @@ export class Renderer {
   screenToWorld(cssX, cssY) {
     return {
       x: (cssX * this.pixelRatio - this.offsetX) / this.zoom,
-      y: (cssY * this.pixelRatio - this.offsetY) / this.zoom,
+      y: (cssY * this.pixelRatio - this.offsetY) / this.zoom + this.scrollY,
     };
   }
 
@@ -83,7 +84,7 @@ export class Renderer {
   worldToScreen(x, y) {
     return {
       x: (x * this.zoom + this.offsetX) / this.pixelRatio,
-      y: (y * this.zoom + this.offsetY) / this.pixelRatio,
+      y: ((y - this.scrollY) * this.zoom + this.offsetY) / this.pixelRatio,
     };
   }
 
@@ -109,7 +110,7 @@ export class Renderer {
   setTransform(ctx, a, b, c, d, e, f, shake = true) {
     const z = this.zoom;
     const ox = this.offsetX + (shake ? this.shakeX : 0);
-    const oy = this.offsetY + (shake ? this.shakeY : 0);
+    const oy = this.offsetY - this.scrollY * z + (shake ? this.shakeY : 0);
     ctx.setTransform(a * z, b * z, c * z, d * z, e * z + ox, f * z + oy);
   }
 

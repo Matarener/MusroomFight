@@ -59,6 +59,11 @@ async function boot() {
     },
   };
   engine.app = app;
+  // в Telegram: развернуть на весь экран и не закрывать игру свайпом вниз (карта леса прокручивается пальцем)
+  const tg = window.Telegram?.WebApp;
+  if (tg && tg.initData) {
+    try { tg.ready(); tg.expand(); if (tg.isVersionAtLeast?.('7.7')) tg.disableVerticalSwipes(); } catch (e) { /* старый клиент */ }
+  }
   // сохранение читается (в Telegram — из облака), пока грузятся шрифты
   const saveReady = setupSave(app.state);
   app.sheet = new Sheet($('#sheet'), {
