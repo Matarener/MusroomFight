@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Обложка 640×360</title>
+  <!-- Обложка Mini App для BotFather: открыть через сервер (node tools/serve.mjs) по адресу
+       /tools/cover/ и сохранить снимок окна 640×360 (tools/cover/shot.cjs делает это сам). -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Caveat:wght@700&display=swap">
+  <link rel="stylesheet" href="../../styles/main.css">
+  <style>
+    html, body { margin: 0; width: 640px; height: 360px; overflow: hidden; background: #86ad63; }
+    #game { position: absolute; inset: 0; }
+    .cover-logo {
+      --u: 0.74px;
+      position: absolute; left: 0; right: 0; top: 18px;
+      display: flex; justify-content: center; pointer-events: none;
+    }
+    .cover-logo .logo, .cover-logo .logo-big, .cover-logo .insert b { animation: none; }
+    .cover-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 250px 120px at 50% 90px, rgba(255, 248, 230, 0.8), rgba(255, 248, 230, 0) 80%);
+    }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <div class="cover-glow"></div>
+  <div class="cover-logo">
+    <h1 class="logo" aria-label="Драка на грибной поляне">
+      <span class="logo-big">Драка</span>
+      <span class="logo-small">на<span class="insert" aria-hidden="true"><b>(грибной)</b><i>‸</i></span>поляне</span>
+    </h1>
+  </div>
+  <script type="module" src="cover.js"></script>
+</body>
+</html>

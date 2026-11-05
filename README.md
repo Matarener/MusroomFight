@@ -123,6 +123,10 @@ hero.on('event', (name) => { if (name === 'hit') { /* момент удара */
 
 Прогресс сохраняется сам (`src/game/save.js`): в браузере — в localStorage, внутри Telegram — ещё и в облако Telegram (CloudStorage), поэтому он переносится между устройствами. При запуске берётся более свежее из двух сохранений. Начать заново: `localStorage.removeItem('gribnica-save')` в консоли (в Telegram — ещё `Telegram.WebApp.CloudStorage.removeItem('gribnica-save')`).
 
+## Обложка для BotFather
+
+`assets/cover-640x360.png` — обложка Mini App (и `cover-1280x720.png` в двойном размере). Она собрана из графики игры сценой `tools/cover/`: чтобы пересоздать, запустите `node tools/serve.mjs` и выполните `cd assets && node ../tools/cover/shot.cjs` (нужен Playwright).
+
 ## Отладка
 
 В консоли браузера доступен объект `gribnica`: `gribnica.state`, `gribnica.engine`, `gribnica.router.go('battle', 8)`. Нажатие на счётчик кадров быстро включает и выключает ограничение 60 кадров.
