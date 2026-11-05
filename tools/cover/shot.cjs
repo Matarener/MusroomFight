@@ -1,4 +1,4 @@
-// Снимок обложки: node tools/cover/shot.cjs (сервер node tools/serve.mjs уже запущен на 5173)
+// Снимок обложки: запустите node tools/serve.mjs (порт 5173), затем cd assets && node ../tools/cover/shot.cjs
 // → cover-640x360.png и cover-1280x720.png в текущей папке.
 const { chromium } = require('playwright');
 (async () => {
