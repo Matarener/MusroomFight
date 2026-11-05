@@ -1,0 +1,15 @@
+{
+  "name": "gribnica",
+  "version": "0.2.0",
+  "description": "Грибница — игра для Telegram Mini App на собственном движке Canvas 2D",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/serve.mjs",
+    "build": "node tools/build.mjs",
+    "preview": "node tools/serve.mjs 5174 dist"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0"
+  }
+}
