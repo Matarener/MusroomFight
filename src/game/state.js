@@ -1,4 +1,7 @@
 import { Emitter } from '../engine/Emitter.js';
+
+/** Версия формата сохранения: поднять, если поля поменяются несовместимо. */
+const SAVE_VERSION = 1;
 import {
   SQUAD_SKINS, SPECIES, CRYSTALS, PRICES, TEAM_SIZE, NODES,
   upgradeCost, xpToNextLevel, nodeReward, ELEMENTS,
@@ -10,7 +13,8 @@ import {
  * После любого изменения отправляется событие 'change' со списком изменённых ресурсов,
  * по нему интерфейс обновляет счётчики.
  *
- * Сейчас всё хранится в памяти. Для сервера достаточно заменить тела методов
+ * Сохранение: toSave() отдаёт снимок для хранилища, restore() применяет его
+ * (см. src/game/save.js). Для сервера достаточно заменить тела методов
  * на запросы к API: остальной код игры менять не придётся.
  */
 export class GameState extends Emitter {
@@ -38,6 +42,58 @@ export class GameState extends Emitter {
 
   _changed(...what) {
     this.emit('change', what);
+  }
+
+  /* ---------- сохранение ---------- */
+  /** Снимок всего прогресса: обычный объект, который можно положить в JSON. */
+  toSave() {
+    return {
+      v: SAVE_VERSION,
+      level: this.level,
+      xp: this.xp,
+      spores: this.spores,
+      stars: this.stars,
+      crystals: { ...this.crystals },
+      squad: this.squad.map(({ id, level, xp }) => ({ id, level, xp })),
+      team: [...this.team],
+      forestCleared: this.forestCleared,
+      beds: this.beds.map((b) => ({ ...b })),
+    };
+  }
+
+  /**
+   * Применить сохранённый снимок. Неизвестные и испорченные поля пропускаются,
+   * поэтому старое или чужое сохранение не ломает игру.
+   * @returns {boolean} удалось ли применить
+   */
+  restore(data) {
+    if (!data || typeof data !== 'object' || data.v !== SAVE_VERSION) return false;
+    const num = (v, min = 0) => (Number.isFinite(v) && v >= min ? v : null);
+    this.level = num(data.level, 1) ?? this.level;
+    this.xp = num(data.xp) ?? this.xp;
+    this.spores = num(data.spores) ?? this.spores;
+    this.stars = num(data.stars) ?? this.stars;
+    for (const el of ELEMENTS) this.crystals[el] = num(data.crystals?.[el]) ?? this.crystals[el];
+    if (Array.isArray(data.squad)) {
+      for (const saved of data.squad) {
+        const f = this.fighter(saved?.id);
+        if (!f) continue;
+        f.level = num(saved.level, 1) ?? f.level;
+        f.xp = num(saved.xp) ?? f.xp;
+      }
+    }
+    if (Array.isArray(data.team)) {
+      const team = [...new Set(data.team)].filter((id) => this.fighter(id)).slice(0, TEAM_SIZE);
+      if (team.length) this.team = team;
+    }
+    this.forestCleared = Math.min(NODES.length, num(data.forestCleared) ?? this.forestCleared);
+    if (Array.isArray(data.beds) && data.beds.length === this.beds.length) {
+      const ok = (b) => b && (b.status === 'empty' || b.status === 'locked'
+        || (b.status === 'growing' && CRYSTALS[b.kind] && num(b.plantedAt) !== null && num(b.duration) !== null));
+      if (data.beds.every(ok)) this.beds = data.beds.map((b) => ({ ...b }));
+    }
+    this._changed('level', 'spores', 'stars', 'crystals', 'squad', 'team', 'forest');
+    return true;
   }
 
   /* ---------- опыт игрока ---------- */

@@ -16,6 +16,7 @@ import { Sheet } from './game/ui/Sheet.js';
 import { createToast } from './game/ui/toast.js';
 import { createUi } from './game/ui/index.js';
 import { createRouter } from './game/router.js';
+import { setupSave } from './game/save.js';
 import { $ } from './game/ui/dom.js';
 import { Settings, QUALITY_RATIO } from './game/settings.js';
 import { SOUNDS } from './game/audio/sounds.js';
@@ -54,6 +55,8 @@ async function boot() {
     },
   };
   engine.app = app;
+  // сохранение читается (в Telegram — из облака), пока грузятся шрифты
+  const saveReady = setupSave(app.state);
   app.sheet = new Sheet($('#sheet'), {
     onChange: (open, modal) => {
       if (open && !modal) app.sfx('open');
@@ -76,6 +79,7 @@ async function boot() {
   makeFarmTextures(engine.textures);
   makeTitleTextures(engine.textures);
 
+  await saveReady;
   app.ui = createUi(app);
   app.router = createRouter(app);
   engine
