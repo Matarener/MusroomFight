@@ -129,7 +129,7 @@ hero.on('event', (name) => { if (name === 'hit') { /* момент удара */
 
 ## Сохранение прогресса
 
-Прогресс сохраняется сам (`src/game/save.js`): в браузере — в localStorage, внутри Telegram — ещё и в облако Telegram (CloudStorage), поэтому он переносится между устройствами. При запуске берётся более свежее из двух сохранений. Начать заново: `localStorage.removeItem('gribnica-save')` в консоли (в Telegram — ещё `Telegram.WebApp.CloudStorage.removeItem('gribnica-save')`).
+Прогресс сохраняется сам (`src/game/save.js`): в браузере — в localStorage, внутри Telegram — ещё и в облако Telegram (CloudStorage), поэтому он переносится между устройствами. При запуске берётся более свежее из двух сохранений. Начать заново: Настройки → «Начать игру заново» (два нажатия). Стирается сохранение и в браузере, и в облаке Telegram; настройки графики и звука остаются.
 
 ## Обложка для BotFather
 

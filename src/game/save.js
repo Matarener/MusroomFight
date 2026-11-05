@@ -29,6 +29,22 @@ function readLocal() {
   try { return parse(localStorage.getItem(KEY)); } catch (e) { return null; }
 }
 
+let disabled = false; // после сброса больше ничего не записываем до перезагрузки
+
+/**
+ * Стереть сохранение везде (браузер и облако Telegram) и перезапустить игру с нуля.
+ * Настройки графики и звука остаются.
+ */
+export function resetProgress() {
+  disabled = true;
+  try { localStorage.removeItem(KEY); } catch (e) { /* хранилище недоступно */ }
+  const cloud = cloudStorage();
+  const reload = () => location.reload();
+  if (!cloud) { reload(); return; }
+  const timer = setTimeout(reload, CLOUD_TIMEOUT);
+  try { cloud.removeItem(KEY, () => { clearTimeout(timer); reload(); }); } catch (e) { clearTimeout(timer); reload(); }
+}
+
 function readCloud(cloud) {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(null), CLOUD_TIMEOUT);
@@ -55,6 +71,7 @@ export async function setupSave(state) {
   const write = () => {
     clearTimeout(timer);
     timer = 0;
+    if (disabled) return;
     const text = JSON.stringify({ ...state.toSave(), savedAt: Date.now() });
     try { localStorage.setItem(KEY, text); } catch (e) { /* хранилище недоступно */ }
     if (cloud) { try { cloud.setItem(KEY, text, () => {}); } catch (e) { /* облако недоступно */ } }

@@ -576,6 +576,8 @@ body {
 }
 .range:focus-visible { outline: calc(var(--u) * 2) solid var(--g-gold); outline-offset: calc(var(--u) * 3); }
 .sbtn.reset { justify-content: center; font-size: calc(var(--u) * 12); background: transparent; box-shadow: none; }
+.sbtn.reset.danger { color: var(--g-red); border-color: var(--g-red); }
+.sbtn.reset.danger.armed { background: var(--g-red); color: #fff8ec; text-align: center; }
 
 /* ---------- титульный экран ---------- */
 .frame[data-screen="title"] .hud,

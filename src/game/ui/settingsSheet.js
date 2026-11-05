@@ -1,5 +1,6 @@
 import { $, $$ } from './dom.js';
 import { Sheet } from './Sheet.js';
+import { resetProgress } from '../save.js';
 
 const QUALITY = [
   ['auto', 'Авто', 'Само снижает разрешение, если кадров не хватает'],
@@ -57,6 +58,7 @@ export function createSettingsSheet(app) {
             '<button class="sbtn" type="button" id="set-story"><span>Показывать сцены глав заново</span></button>' +
           '</section>') +
         '<button class="sbtn reset" type="button" id="set-reset"><span>Сбросить настройки</span></button>' +
+        '<button class="sbtn reset danger" type="button" id="set-progress"><span>Начать игру заново</span></button>' +
       '</div>',
     );
 
@@ -85,6 +87,21 @@ export function createSettingsSheet(app) {
       if (r.dataset.key === 'sounds') r.addEventListener('change', () => app.sfx('collect'));
     }
     $('#set-reset', panel).addEventListener('click', () => { settings.reset(); open(); });
+    // сброс прогресса — только со второго нажатия
+    const wipe = $('#set-progress', panel);
+    let armed = false;
+    wipe.addEventListener('click', () => {
+      app.sfx('tap');
+      if (!armed) {
+        armed = true;
+        wipe.classList.add('armed');
+        wipe.querySelector('span').textContent = 'Точно? Весь прогресс пропадёт. Нажмите ещё раз';
+        return;
+      }
+      wipe.disabled = true;
+      wipe.querySelector('span').textContent = 'Начинаем заново…';
+      resetProgress();
+    });
     const intro = $('#set-intro', panel);
     if (intro) {
       intro.addEventListener('click', () => {
